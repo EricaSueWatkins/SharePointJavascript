@@ -3,80 +3,85 @@
 <head>
 <title>charcount example</title>
 <style type="text/css">
-
 .counter {
 font-size:100%;
 font-weight:normal;
+/*DSREMOVE "hidden" class not necessary - just make it white by default
+  DSREMOVE "fff" short notation when both hex digits are the same */
+color:#fff;
 }
 
-.hidden {
-color:#ffffff;
-}
-
-.display {
-color:#339900;
-}
-
-.counter.warn {
-    color:#ff6600;
-    font-size: 125%;
-    font-weight:bold;
-}
-
-.counter.over {
-color:#990000;
-font-size:150%;
+.counter.half {
+/*DSREMOVE short notation, better color - yellow */
+color:#AA0;
+font-size: 125%;
 font-weight:bold;
 }
 
+.counter.over {
+/*DSREMOVE short notation, better color - red */
+color:#F00;
+font-size:150%;
+font-weight:bold;
+}
 </style>
 </head>
 <body>
 
-
+<!--DSREMOVE We need test elements-->
+<div class="foo" contenteditable="true" style="border:1px black solid;padding:5px">Say what again</div>
+<div class="foo" contenteditable="true" style="border:1px black solid;padding:5px">I dare you</div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 function handleInput(index, elem) {
-    var mid = 500000;
-    var warn = 750000;
+//DSREMOVE We need shorter limits, to avoid having to paste a crapton of test text
+    var mid = 50; //500000;
+    var warn = 75; //750000;
     var len = this.innerHTML.length;
-    var cd = 1000000-len;
+//DSREMOVE You weren't doing anything with the "cd" variable    
 
     var c = $(this).data("counter");
 
     if (!c) {
-        $(this).after("<div></div>");
-        $(this).data("counter", $(this.nextSibling));
-        c = $(this).data("counter");
+//DSREMOVE This is an ugly hack using a closure
+//DSREMOVE The way it works is, I set a variable in the callback
+//DSREMOVE that is declared in the enclosing scope, enabling me
+//DSREMOVE to keep a reference to the new <div> I made in the function
+        var enclosed;
+        $(this).after(function () {
+            enclosed = document.createElement("div");
+            return enclosed;
+        });
+        c = $(enclosed);
+        $(this).data("counter", c);
         c.addClass("counter");
-        c.addClass("hidden");
+//DSREMOVE As explained in the CSS, "hidden" isn't needed        
     }
-    
-
  
+//DSREMOVE We only need to do this once
     c.text(len);
-
-    if (len > mid) {
-        c.addClass("half");
-        c.removeClass("hidden");
-    } else if (c.hasClass("half")) {
-        c.removeClass("half");
-    }
-
-    c.text(len);
-
+    
+//DSREMOVE I cleaned up this logic and removed the
+//DSREMOVE unnecessary "hidden stuff".
+//DSREMOVE Check for the highest number first, then go down;
+//DSREMOVE this prevents the two pieces of logic from
+//DSREMOVE fighting with each other
     if (len > warn) {
         c.addClass("over");
-        c.removeClass("hidden");
     } else if (c.hasClass("over")) {
         c.removeClass("over");
+    } else if (len > mid) {
+        c.addClass("half");
+    } else if (c.hasClass("half")) {
+        c.removeClass("half");
     }
 }
 
 function main() {
-    var targets = $("div.ms-WPBody");
+//DSREMOVE We need to select my test divs
+    var targets = $("div.foo"); //$("div.ms-WPBody");
     targets.keyup(handleInput);
     targets.bind("paste", handleInput);
     targets.each(handleInput);
@@ -86,7 +91,9 @@ $(document).ready(main);
 
 </script>
 
+<!--
 <img src="http://intranet.resnet.org:31872/Who/Erica_Waktins/chartest/Shared%20Documents/countbutton.png" width="75" height="37">
+-->
 
 </body>
 </html>
